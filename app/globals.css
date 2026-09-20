@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Eater&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -162,4 +163,10 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.eater-regular {
+  font-family: 'Eater', serif;
+  font-weight: 400;
+  font-style: normal;
 }

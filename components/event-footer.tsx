@@ -1,7 +1,7 @@
 export function EventFooter() {
   return (
-    <footer className="border-t border-border bg-secondary/50">
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-4 py-8 text-center">
+    <footer className="border-t border-border/70 bg-secondary/40">
+      <div className="flex flex-col items-center gap-2 px-4 py-6 text-center">
         <p className="font-heading text-sm font-bold text-foreground">
           The Gourmet Brunch and Commercial Snack Blueprint
         </p>

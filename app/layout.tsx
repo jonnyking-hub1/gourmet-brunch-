@@ -53,6 +53,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="light" style={{ colorScheme: 'light' }}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Eater&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className={`${poppins.variable} ${inter.variable} font-sans antialiased`}>
         {children}
         <Toaster richColors position="top-center" />
