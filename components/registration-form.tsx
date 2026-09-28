@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import { Loader2, PartyPopper } from 'lucide-react'
+import { ArrowUpRight, Loader2, PartyPopper } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -45,6 +45,13 @@ export function RegistrationForm() {
   const [errors, setErrors] = useState<Partial<FormValues>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const formRef = useRef<HTMLFormElement>(null)
+  const successRef = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    if (isSubmitted) successRef.current?.focus()
+  }, [isSubmitted])
 
   function updateField<K extends keyof FormValues>(key: K, value: FormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }))
@@ -58,7 +65,7 @@ export function RegistrationForm() {
     if (!values.lastName.trim()) nextErrors.lastName = 'Last name is required.'
     if (!values.email.trim()) {
       nextErrors.email = 'Email is required.'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
       nextErrors.email = 'Enter a valid email address.'
     }
     if (!values.reason) nextErrors.reason = 'Please select a reason.'
@@ -73,7 +80,12 @@ export function RegistrationForm() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
+    if (isSubmitting) return
+    setSubmitError('')
     if (!validate()) {
+      requestAnimationFrame(() => {
+        formRef.current?.querySelector<HTMLElement>('input[aria-invalid="true"], [role="radio"][aria-invalid="true"]')?.focus()
+      })
       toast.error('Please fix the highlighted fields.')
       return
     }
@@ -84,7 +96,7 @@ export function RegistrationForm() {
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, email: values.email.trim() }),
       })
 
       const data = await response.json()
@@ -96,7 +108,9 @@ export function RegistrationForm() {
       setIsSubmitted(true)
       toast.success("You're registered! See you at brunch.")
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Something went wrong. Please try again.')
+      const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.'
+      setSubmitError(message)
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -104,16 +118,16 @@ export function RegistrationForm() {
 
   if (isSubmitted) {
     return (
-      <Card id="register" className="border-border/80 bg-card shadow-lg">
+      <Card id="register" className="registration-card bg-card">
         <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
           <span className="flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <PartyPopper className="size-7" aria-hidden />
           </span>
-          <h2 className="font-heading text-xl font-bold text-foreground">You&apos;re on the list!</h2>
+          <h2 ref={successRef} tabIndex={-1} className="font-heading text-3xl text-foreground outline-none">You&apos;re on the list!</h2>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Thanks, {values.firstName}. A Google Meet link and reminder will be sent to{' '}
-            <span className="font-medium text-foreground">{values.email}</span> ahead of Friday, 31st July at 7PM
-            WAT.
+            Thanks, {values.firstName}. Your registration has been saved with{' '}
+            <span className="font-medium text-foreground">{values.email.trim()}</span>.
+            We look forward to seeing you on Google Meet on Friday, 31st July at 7PM WAT.
           </p>
         </CardContent>
       </Card>
@@ -121,43 +135,51 @@ export function RegistrationForm() {
   }
 
   return (
-    <Card id="register" className="border-border/80 bg-card shadow-lg">
+    <Card id="register" className="registration-card bg-card">
       <CardHeader>
-        <CardTitle className="font-heading text-xl font-bold text-foreground sm:text-2xl">
-          Reserve your spot
+        <p className="eyebrow mb-2">Let&apos;s make something good</p>
+        <CardTitle className="font-heading text-3xl font-normal text-foreground">
+          <h3>Reserve your spot</h3>
         </CardTitle>
         <CardDescription>
-          Fill in your details below and we&apos;ll save your seat for the live session on Google Meet.
+          Tell us a little about yourself. All fields are required unless marked optional.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} noValidate>
+        <form ref={formRef} onSubmit={handleSubmit} noValidate aria-busy={isSubmitting}>
+          <fieldset disabled={isSubmitting} className="min-w-0">
           <FieldGroup>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field data-invalid={!!errors.firstName}>
                 <FieldLabel htmlFor="firstName">First name</FieldLabel>
                 <Input
                   id="firstName"
+                  name="firstName"
+                  required
+                  aria-describedby={errors.firstName ? 'firstName-error' : undefined}
                   autoComplete="given-name"
                   aria-invalid={!!errors.firstName}
                   value={values.firstName}
                   onChange={(event) => updateField('firstName', event.target.value)}
                   placeholder="Ada"
                 />
-                <FieldError>{errors.firstName}</FieldError>
+                <FieldError id="firstName-error">{errors.firstName}</FieldError>
               </Field>
 
               <Field data-invalid={!!errors.lastName}>
                 <FieldLabel htmlFor="lastName">Last name</FieldLabel>
                 <Input
                   id="lastName"
+                  name="lastName"
+                  required
+                  aria-describedby={errors.lastName ? 'lastName-error' : undefined}
                   autoComplete="family-name"
                   aria-invalid={!!errors.lastName}
                   value={values.lastName}
                   onChange={(event) => updateField('lastName', event.target.value)}
                   placeholder="Lovelace"
                 />
-                <FieldError>{errors.lastName}</FieldError>
+                <FieldError id="lastName-error">{errors.lastName}</FieldError>
               </Field>
             </div>
 
@@ -165,6 +187,9 @@ export function RegistrationForm() {
               <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
                 id="email"
+                  name="email"
+                  required
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                 type="email"
                 autoComplete="email"
                 aria-invalid={!!errors.email}
@@ -172,13 +197,16 @@ export function RegistrationForm() {
                 onChange={(event) => updateField('email', event.target.value)}
                 placeholder="ada@example.com"
               />
-              <FieldError>{errors.email}</FieldError>
+              <FieldError id="email-error">{errors.email}</FieldError>
             </Field>
 
             <FieldSet data-invalid={!!errors.reason}>
               <FieldLegend variant="label">Reason for learning</FieldLegend>
               <FieldDescription>Tell us why you&apos;re joining the session.</FieldDescription>
               <RadioGroup
+                aria-label="Reason for learning"
+                aria-required="true"
+                aria-describedby={errors.reason ? 'reason-error' : undefined}
                 value={values.reason}
                 onValueChange={(value) => updateField('reason', String(value))}
                 aria-invalid={!!errors.reason}
@@ -197,7 +225,7 @@ export function RegistrationForm() {
                   </Field>
                 </FieldLabel>
               </RadioGroup>
-              <FieldError>{errors.reason}</FieldError>
+              <FieldError id="reason-error">{errors.reason}</FieldError>
               {values.reason ? (
                 <Field>
                   <FieldLabel htmlFor="reasonDetails">Tell us a bit more (optional)</FieldLabel>
@@ -220,6 +248,9 @@ export function RegistrationForm() {
               <FieldLegend variant="label">Business support after learning</FieldLegend>
               <FieldDescription>Do you need help establishing your business after learning?</FieldDescription>
               <RadioGroup
+                aria-label="Business support after learning"
+                aria-required="true"
+                aria-describedby={errors.needsBusinessHelp ? 'needsBusinessHelp-error' : undefined}
                 value={values.needsBusinessHelp}
                 onValueChange={(value) => updateField('needsBusinessHelp', String(value))}
                 aria-invalid={!!errors.needsBusinessHelp}
@@ -238,7 +269,7 @@ export function RegistrationForm() {
                   </Field>
                 </FieldLabel>
               </RadioGroup>
-              <FieldError>{errors.needsBusinessHelp}</FieldError>
+              <FieldError id="needsBusinessHelp-error">{errors.needsBusinessHelp}</FieldError>
             </FieldSet>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -246,40 +277,49 @@ export function RegistrationForm() {
                 <FieldLabel htmlFor="location">Location</FieldLabel>
                 <Input
                   id="location"
+                  name="location"
+                  required
+                  aria-describedby={errors.location ? 'location-error' : undefined}
                   autoComplete="address-level2"
                   aria-invalid={!!errors.location}
                   value={values.location}
                   onChange={(event) => updateField('location', event.target.value)}
                   placeholder="Lagos, Nigeria"
                 />
-                <FieldError>{errors.location}</FieldError>
+                <FieldError id="location-error">{errors.location}</FieldError>
               </Field>
 
               <Field data-invalid={!!errors.university}>
                 <FieldLabel htmlFor="university">University</FieldLabel>
                 <Input
                   id="university"
+                  name="university"
+                  required
+                  aria-describedby={errors.university ? 'university-error' : undefined}
                   autoComplete="organization"
                   aria-invalid={!!errors.university}
                   value={values.university}
                   onChange={(event) => updateField('university', event.target.value)}
-                  placeholder="University of Lagos"
+                  placeholder="University of Lagos, or N/A"
                 />
-                <FieldError>{errors.university}</FieldError>
+                <FieldError id="university-error">{errors.university}</FieldError>
               </Field>
             </div>
 
-            <Button type="submit" size="lg" disabled={isSubmitting} className="w-full font-semibold">
+            {submitError && <p role="alert" className="rounded-lg border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive">{submitError} Your details are still here; please try again.</p>}
+            <Button type="submit" size="lg" disabled={isSubmitting} className="h-12 w-full justify-between px-5 font-semibold hover:bg-primary/90">
               {isSubmitting ? (
                 <>
                   <Loader2 className="animate-spin" data-icon="inline-start" />
                   Submitting...
                 </>
               ) : (
-                'Register for the session'
+                <>Reserve my spot <ArrowUpRight size={18} aria-hidden /></>
               )}
             </Button>
           </FieldGroup>
+          </fieldset>
+          <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">Friday, 31st July &middot; 7PM WAT &middot; Google Meet</p>
         </form>
       </CardContent>
     </Card>

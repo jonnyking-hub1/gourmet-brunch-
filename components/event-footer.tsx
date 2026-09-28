@@ -1,18 +1,9 @@
 export function EventFooter() {
   return (
-    <footer className="border-t border-border/70 bg-secondary/40">
-      <div className="flex flex-col items-center gap-2 px-4 py-6 text-center">
-        <p className="font-heading text-sm font-bold text-foreground">
-          The Gourmet Brunch and Commercial Snack Blueprint
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Hosted by Aivot Treats &times; Virusia Academy &times; Damron Confections &mdash; facilitated by Tovia
-          Osonaike
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Friday, 31st July &middot; 7PM WAT &middot; Google Meet
-        </p>
-      </div>
+    <footer className="site-footer page-width">
+      <div><p className="footer-title">The Gourmet Brunch</p><p>&amp; Commercial Snack Blueprint</p></div>
+      <p>Aivot Treats × Virusia Academy × Damron Confections<br /><span>Food. Community. Possibility.</span></p>
+      <a href="#register">Join the experience ?</a>
     </footer>
   )
 }
