@@ -17,22 +17,14 @@ import {
 } from '@/components/ui/field'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { event as programme, selectionNote } from '@/lib/event'
+import { businessStages, registrationGoals, validateRegistration, type RegistrationValues, type RegistrationErrors } from '@/lib/registration'
 
-type FormValues = {
-  firstName: string
-  lastName: string
-  email: string
-  reason: string
-  reasonDetails: string
-  needsBusinessHelp: string
-  location: string
-  university: string
-}
-
-const initialValues: FormValues = {
+const initialValues: RegistrationValues = {
   firstName: '',
   lastName: '',
   email: '',
+  businessStage: '',
   reason: '',
   reasonDetails: '',
   needsBusinessHelp: '',
@@ -41,8 +33,8 @@ const initialValues: FormValues = {
 }
 
 export function RegistrationForm() {
-  const [values, setValues] = useState<FormValues>(initialValues)
-  const [errors, setErrors] = useState<Partial<FormValues>>({})
+  const [values, setValues] = useState<RegistrationValues>(initialValues)
+  const [errors, setErrors] = useState<RegistrationErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState('')
@@ -53,28 +45,15 @@ export function RegistrationForm() {
     if (isSubmitted) successRef.current?.focus()
   }, [isSubmitted])
 
-  function updateField<K extends keyof FormValues>(key: K, value: FormValues[K]) {
+  function updateField<K extends keyof RegistrationValues>(key: K, value: RegistrationValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }))
     setErrors((prev) => ({ ...prev, [key]: undefined }))
   }
 
-  function validate(): boolean {
-    const nextErrors: Partial<FormValues> = {}
-
-    if (!values.firstName.trim()) nextErrors.firstName = 'First name is required.'
-    if (!values.lastName.trim()) nextErrors.lastName = 'Last name is required.'
-    if (!values.email.trim()) {
-      nextErrors.email = 'Email is required.'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
-      nextErrors.email = 'Enter a valid email address.'
-    }
-    if (!values.reason) nextErrors.reason = 'Please select a reason.'
-    if (!values.needsBusinessHelp) nextErrors.needsBusinessHelp = 'Please select an option.'
-    if (!values.location.trim()) nextErrors.location = 'Location is required.'
-    if (!values.university.trim()) nextErrors.university = 'University is required.'
-
-    setErrors(nextErrors)
-    return Object.keys(nextErrors).length === 0
+  function focusFirstError() {
+    requestAnimationFrame(() => {
+      formRef.current?.querySelector<HTMLElement>('input[aria-invalid="true"], textarea[aria-invalid="true"], [role="radio"][aria-invalid="true"]')?.focus()
+    })
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -82,10 +61,10 @@ export function RegistrationForm() {
 
     if (isSubmitting) return
     setSubmitError('')
-    if (!validate()) {
-      requestAnimationFrame(() => {
-        formRef.current?.querySelector<HTMLElement>('input[aria-invalid="true"], [role="radio"][aria-invalid="true"]')?.focus()
-      })
+    const validated = validateRegistration(values)
+    setErrors(validated.errors)
+    if (Object.keys(validated.errors).length) {
+      focusFirstError()
       toast.error('Please fix the highlighted fields.')
       return
     }
@@ -96,17 +75,22 @@ export function RegistrationForm() {
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, email: values.email.trim() }),
+        body: JSON.stringify(validated.values),
       })
 
-      const data = await response.json()
+      const data = await response.json().catch(() => null)
 
       if (!response.ok) {
+        if (data?.errors) {
+          setErrors(data.errors)
+          focusFirstError()
+        }
         throw new Error(data?.error || 'Something went wrong. Please try again.')
       }
 
+      setValues(validated.values)
       setIsSubmitted(true)
-      toast.success("You're registered! See you at brunch.")
+      toast.success("You're registered for EEA Cohort 01!")
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.'
       setSubmitError(message)
@@ -123,12 +107,13 @@ export function RegistrationForm() {
           <span className="flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <PartyPopper className="size-7" aria-hidden />
           </span>
-          <h2 ref={successRef} tabIndex={-1} className="font-heading text-3xl text-foreground outline-none">You&apos;re on the list!</h2>
+          <h3 ref={successRef} tabIndex={-1} className="font-heading text-3xl text-foreground outline-none">You&apos;re registered for Cohort 01!</h3>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Thanks, {values.firstName}. Your registration has been saved with{' '}
+            Thanks, {values.firstName}. Your {programme.edition} programme registration has been saved with{' '}
             <span className="font-medium text-foreground">{values.email.trim()}</span>.
-            We look forward to seeing you on Google Meet on Friday, 31st July at 7PM WAT.
+            {' '}Join us on {programme.venue}, {programme.date} at {programme.time}.
           </p>
+          <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">This confirms programme registration. Venture selection is separate. {selectionNote}</p>
         </CardContent>
       </Card>
     )
@@ -137,189 +122,208 @@ export function RegistrationForm() {
   return (
     <Card id="register" className="registration-card bg-card">
       <CardHeader>
-        <p className="eyebrow mb-2">Let&apos;s make something good</p>
+        <p className="eyebrow mb-2">{programme.edition} · {programme.cohort}</p>
         <CardTitle className="font-heading text-3xl font-normal text-foreground">
-          <h3>Reserve your spot</h3>
+          <h3>Join the programme</h3>
         </CardTitle>
         <CardDescription>
-          Tell us a little about yourself. All fields are required unless marked optional.
+          Tell us about yourself and what you&apos;re building. All fields are required unless marked optional.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form ref={formRef} onSubmit={handleSubmit} noValidate aria-busy={isSubmitting}>
           <fieldset disabled={isSubmitting} className="min-w-0">
-          <FieldGroup>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field data-invalid={!!errors.firstName}>
-                <FieldLabel htmlFor="firstName">First name</FieldLabel>
-                <Input
-                  id="firstName"
-                  name="firstName"
-                  required
-                  aria-describedby={errors.firstName ? 'firstName-error' : undefined}
-                  autoComplete="given-name"
-                  aria-invalid={!!errors.firstName}
-                  value={values.firstName}
-                  onChange={(event) => updateField('firstName', event.target.value)}
-                  placeholder="Ada"
-                />
-                <FieldError id="firstName-error">{errors.firstName}</FieldError>
-              </Field>
+            <FieldGroup>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field data-invalid={!!errors.firstName}>
+                  <FieldLabel htmlFor="firstName">First name</FieldLabel>
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    required
+                    aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+                    autoComplete="given-name"
+                    aria-invalid={!!errors.firstName}
+                    value={values.firstName}
+                    onChange={(event) => updateField('firstName', event.target.value)}
+                    placeholder="Ada"
+                  />
+                  <FieldError id="firstName-error">{errors.firstName}</FieldError>
+                </Field>
 
-              <Field data-invalid={!!errors.lastName}>
-                <FieldLabel htmlFor="lastName">Last name</FieldLabel>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  required
-                  aria-describedby={errors.lastName ? 'lastName-error' : undefined}
-                  autoComplete="family-name"
-                  aria-invalid={!!errors.lastName}
-                  value={values.lastName}
-                  onChange={(event) => updateField('lastName', event.target.value)}
-                  placeholder="Lovelace"
-                />
-                <FieldError id="lastName-error">{errors.lastName}</FieldError>
-              </Field>
-            </div>
+                <Field data-invalid={!!errors.lastName}>
+                  <FieldLabel htmlFor="lastName">Last name</FieldLabel>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    required
+                    aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+                    autoComplete="family-name"
+                    aria-invalid={!!errors.lastName}
+                    value={values.lastName}
+                    onChange={(event) => updateField('lastName', event.target.value)}
+                    placeholder="Lovelace"
+                  />
+                  <FieldError id="lastName-error">{errors.lastName}</FieldError>
+                </Field>
+              </div>
 
-            <Field data-invalid={!!errors.email}>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
+              <Field data-invalid={!!errors.email}>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <Input
+                  id="email"
                   name="email"
                   required
                   aria-describedby={errors.email ? 'email-error' : undefined}
-                type="email"
-                autoComplete="email"
-                aria-invalid={!!errors.email}
-                value={values.email}
-                onChange={(event) => updateField('email', event.target.value)}
-                placeholder="ada@example.com"
-              />
-              <FieldError id="email-error">{errors.email}</FieldError>
-            </Field>
+                  type="email"
+                  autoComplete="email"
+                  aria-invalid={!!errors.email}
+                  value={values.email}
+                  onChange={(event) => updateField('email', event.target.value)}
+                  placeholder="ada@example.com"
+                />
+                <FieldError id="email-error">{errors.email}</FieldError>
+              </Field>
 
-            <FieldSet data-invalid={!!errors.reason}>
-              <FieldLegend variant="label">Reason for learning</FieldLegend>
-              <FieldDescription>Tell us why you&apos;re joining the session.</FieldDescription>
-              <RadioGroup
-                aria-label="Reason for learning"
-                aria-required="true"
-                aria-describedby={errors.reason ? 'reason-error' : undefined}
-                value={values.reason}
-                onValueChange={(value) => updateField('reason', String(value))}
-                aria-invalid={!!errors.reason}
-                className="grid gap-2 sm:grid-cols-2"
-              >
-                <FieldLabel htmlFor="reason-fun">
-                  <Field orientation="horizontal">
-                    <RadioGroupItem value="For fun" id="reason-fun" aria-invalid={!!errors.reason} />
-                    For fun
-                  </Field>
-                </FieldLabel>
-                <FieldLabel htmlFor="reason-business">
-                  <Field orientation="horizontal">
-                    <RadioGroupItem value="For business" id="reason-business" aria-invalid={!!errors.reason} />
-                    For business
-                  </Field>
-                </FieldLabel>
-              </RadioGroup>
-              <FieldError id="reason-error">{errors.reason}</FieldError>
-              {values.reason ? (
-                <Field>
-                  <FieldLabel htmlFor="reasonDetails">Tell us a bit more (optional)</FieldLabel>
-                  <Textarea
-                    id="reasonDetails"
-                    value={values.reasonDetails}
-                    onChange={(event) => updateField('reasonDetails', event.target.value)}
-                    placeholder={
-                      values.reason === 'For fun'
-                        ? 'e.g. I love brunch and want to try new recipes at home.'
-                        : 'e.g. I want to start a weekend snack business and need a solid recipe.'
-                    }
-                    rows={3}
+              <FieldSet data-invalid={!!errors.businessStage}>
+                <FieldLegend variant="label">Where are you in your business journey?</FieldLegend>
+                <RadioGroup
+                  aria-label="Business stage"
+                  aria-required="true"
+                  aria-describedby={errors.businessStage ? 'businessStage-error' : undefined}
+                  value={values.businessStage}
+                  onValueChange={(value) => updateField('businessStage', String(value))}
+                  aria-invalid={!!errors.businessStage}
+                  className="grid gap-2"
+                >
+                  {businessStages.map((stage, index) => (
+                    <FieldLabel key={stage} htmlFor={`stage-${index}`}>
+                      <Field orientation="horizontal">
+                        <RadioGroupItem value={stage} id={`stage-${index}`} aria-invalid={!!errors.businessStage} />
+                        {stage}
+                      </Field>
+                    </FieldLabel>
+                  ))}
+                </RadioGroup>
+                <FieldError id="businessStage-error">{errors.businessStage}</FieldError>
+              </FieldSet>
+
+              <FieldSet data-invalid={!!errors.reason}>
+                <FieldLegend variant="label">What is your main goal?</FieldLegend>
+                <FieldDescription>Tell us what you want to work towards through the programme.</FieldDescription>
+                <RadioGroup
+                  aria-label="Programme goal"
+                  aria-required="true"
+                  aria-describedby={errors.reason ? 'reason-error' : undefined}
+                  value={values.reason}
+                  onValueChange={(value) => updateField('reason', String(value))}
+                  aria-invalid={!!errors.reason}
+                  className="grid gap-2 sm:grid-cols-2"
+                >
+                  {registrationGoals.map((goal, index) => (
+                    <FieldLabel key={goal} htmlFor={`goal-${index}`}>
+                      <Field orientation="horizontal">
+                        <RadioGroupItem value={goal} id={`goal-${index}`} aria-invalid={!!errors.reason} />
+                        {goal}
+                      </Field>
+                    </FieldLabel>
+                  ))}
+                </RadioGroup>
+                <FieldError id="reason-error">{errors.reason}</FieldError>
+              </FieldSet>
+              <Field data-invalid={!!errors.reasonDetails}>
+                <FieldLabel htmlFor="reasonDetails">Your business idea or product (optional)</FieldLabel>
+                <FieldDescription id="idea-description">A short introduction helps us understand your interests. This is not a funding application.</FieldDescription>
+                <Textarea
+                  id="reasonDetails"
+                  name="reasonDetails"
+                  maxLength={1500}
+                  aria-invalid={!!errors.reasonDetails}
+                  aria-describedby={`idea-description${errors.reasonDetails ? ' reasonDetails-error' : ''}`}
+                  value={values.reasonDetails}
+                  onChange={(event) => updateField('reasonDetails', event.target.value)}
+                  placeholder="e.g. I’m developing an affordable lunch service for students and want to understand pricing and packaging."
+                  rows={3}
+                />
+                <FieldError id="reasonDetails-error">{errors.reasonDetails}</FieldError>
+              </Field>
+
+              <FieldSet data-invalid={!!errors.needsBusinessHelp}>
+                <FieldLegend variant="label">Would you like business support?</FieldLegend>
+                <FieldDescription>Tell us if you&apos;re interested in support to establish or grow your business.</FieldDescription>
+                <RadioGroup
+                  aria-label="Business support interest"
+                  aria-required="true"
+                  aria-describedby={errors.needsBusinessHelp ? 'needsBusinessHelp-error' : undefined}
+                  value={values.needsBusinessHelp}
+                  onValueChange={(value) => updateField('needsBusinessHelp', String(value))}
+                  aria-invalid={!!errors.needsBusinessHelp}
+                  className="grid gap-2 sm:grid-cols-2"
+                >
+                  <FieldLabel htmlFor="help-yes">
+                    <Field orientation="horizontal">
+                      <RadioGroupItem value="Yes" id="help-yes" aria-invalid={!!errors.needsBusinessHelp} />
+                      Yes
+                    </Field>
+                  </FieldLabel>
+                  <FieldLabel htmlFor="help-no">
+                    <Field orientation="horizontal">
+                      <RadioGroupItem value="No" id="help-no" aria-invalid={!!errors.needsBusinessHelp} />
+                      No
+                    </Field>
+                  </FieldLabel>
+                </RadioGroup>
+                <FieldError id="needsBusinessHelp-error">{errors.needsBusinessHelp}</FieldError>
+              </FieldSet>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field data-invalid={!!errors.location}>
+                  <FieldLabel htmlFor="location">Location</FieldLabel>
+                  <Input
+                    id="location"
+                    name="location"
+                    required
+                    aria-describedby={errors.location ? 'location-error' : undefined}
+                    autoComplete="address-level2"
+                    aria-invalid={!!errors.location}
+                    value={values.location}
+                    onChange={(event) => updateField('location', event.target.value)}
+                    placeholder="Lagos, Nigeria"
                   />
+                  <FieldError id="location-error">{errors.location}</FieldError>
                 </Field>
-              ) : null}
-            </FieldSet>
 
-            <FieldSet data-invalid={!!errors.needsBusinessHelp}>
-              <FieldLegend variant="label">Business support after learning</FieldLegend>
-              <FieldDescription>Do you need help establishing your business after learning?</FieldDescription>
-              <RadioGroup
-                aria-label="Business support after learning"
-                aria-required="true"
-                aria-describedby={errors.needsBusinessHelp ? 'needsBusinessHelp-error' : undefined}
-                value={values.needsBusinessHelp}
-                onValueChange={(value) => updateField('needsBusinessHelp', String(value))}
-                aria-invalid={!!errors.needsBusinessHelp}
-                className="grid gap-2 sm:grid-cols-2"
-              >
-                <FieldLabel htmlFor="help-yes">
-                  <Field orientation="horizontal">
-                    <RadioGroupItem value="Yes" id="help-yes" aria-invalid={!!errors.needsBusinessHelp} />
-                    Yes
-                  </Field>
-                </FieldLabel>
-                <FieldLabel htmlFor="help-no">
-                  <Field orientation="horizontal">
-                    <RadioGroupItem value="No" id="help-no" aria-invalid={!!errors.needsBusinessHelp} />
-                    No
-                  </Field>
-                </FieldLabel>
-              </RadioGroup>
-              <FieldError id="needsBusinessHelp-error">{errors.needsBusinessHelp}</FieldError>
-            </FieldSet>
+                <Field data-invalid={!!errors.university}>
+                  <FieldLabel htmlFor="university">University (optional)</FieldLabel>
+                  <Input
+                    id="university"
+                    name="university"
+                    aria-describedby={errors.university ? 'university-error' : undefined}
+                    autoComplete="organization"
+                    aria-invalid={!!errors.university}
+                    value={values.university}
+                    onChange={(event) => updateField('university', event.target.value)}
+                    placeholder="If applicable"
+                  />
+                  <FieldError id="university-error">{errors.university}</FieldError>
+                </Field>
+              </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field data-invalid={!!errors.location}>
-                <FieldLabel htmlFor="location">Location</FieldLabel>
-                <Input
-                  id="location"
-                  name="location"
-                  required
-                  aria-describedby={errors.location ? 'location-error' : undefined}
-                  autoComplete="address-level2"
-                  aria-invalid={!!errors.location}
-                  value={values.location}
-                  onChange={(event) => updateField('location', event.target.value)}
-                  placeholder="Lagos, Nigeria"
-                />
-                <FieldError id="location-error">{errors.location}</FieldError>
-              </Field>
-
-              <Field data-invalid={!!errors.university}>
-                <FieldLabel htmlFor="university">University</FieldLabel>
-                <Input
-                  id="university"
-                  name="university"
-                  required
-                  aria-describedby={errors.university ? 'university-error' : undefined}
-                  autoComplete="organization"
-                  aria-invalid={!!errors.university}
-                  value={values.university}
-                  onChange={(event) => updateField('university', event.target.value)}
-                  placeholder="University of Lagos, or N/A"
-                />
-                <FieldError id="university-error">{errors.university}</FieldError>
-              </Field>
-            </div>
-
-            {submitError && <p role="alert" className="rounded-lg border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive">{submitError} Your details are still here; please try again.</p>}
-            <Button type="submit" size="lg" disabled={isSubmitting} className="h-12 w-full justify-between px-5 font-semibold hover:bg-primary/90">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="animate-spin" data-icon="inline-start" />
-                  Submitting...
-                </>
-              ) : (
-                <>Reserve my spot <ArrowUpRight size={18} aria-hidden /></>
-              )}
-            </Button>
-          </FieldGroup>
+              <p className="registration-disclosure">You&apos;re registering to attend EEA. This form is not a funding application. {selectionNote}</p>
+              {submitError && <p role="alert" className="rounded-lg border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive">{submitError} Your details are still here; please try again.</p>}
+              <Button type="submit" size="lg" disabled={isSubmitting} className="h-12 w-full justify-between px-5 font-semibold hover:bg-primary/90">
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin" data-icon="inline-start" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>Register for Cohort 01 <ArrowUpRight size={18} aria-hidden /></>
+                )}
+              </Button>
+            </FieldGroup>
           </fieldset>
-          <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">Friday, 31st July &middot; 7PM WAT &middot; Google Meet</p>
+          <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">{programme.date} &middot; {programme.time} &middot; {programme.venue}</p>
         </form>
       </CardContent>
     </Card>

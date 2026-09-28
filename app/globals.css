@@ -30,11 +30,11 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
 }
-:root { color-scheme: light; --background: #faf7ef; --foreground: #302b22; --card: #fffdf8; --primary: #923e2b; }
+:root { color-scheme: light; --background: #faf7ef; --foreground: #302b22; --card: #fffdf8; --primary: #923e2b; --site-header-height: 5.75rem; }
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; }
-  html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+  html { scroll-behavior: smooth; scroll-padding-top: calc(var(--site-header-height) + 1rem); }
   ::selection { background: #e9c9a9; color: #302b22; }
   a, button, input, textarea { -webkit-tap-highlight-color: transparent; }
   a:focus-visible { outline: 3px solid #923e2b; outline-offset: 5px; }
@@ -42,10 +42,12 @@
 .page-width { width: min(1180px, calc(100% - 96px)); margin-inline: auto; }
 .skip-link { position: fixed; top: -100px; left: 16px; z-index: 100; padding: 12px 20px; background: white; }
 .skip-link:focus { top: 16px; }
-.site-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 28px; border-bottom: 1px solid #ded6c8; }
+.site-header { position: sticky; top: 0; z-index: 30; height: var(--site-header-height); background: var(--background); border-bottom: 1px solid #ded6c8; box-shadow: 0 3px 12px #302b2205; }
+.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 100%; }
 .partner-brand { width: 340px; max-width: 65%; }
 .partner-brand img { width: 100%; height: auto; mix-blend-mode: multiply; }
-.header-cta { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; padding: 12px 0; }
+.header-cta { display: flex; flex-shrink: 0; align-items: center; gap: 12px; min-height: 44px; font-size: 13px; font-weight: 600; padding-block: 12px; white-space: nowrap; }
+.header-cta:hover { color: var(--primary); }
 .hero { display: grid; grid-template-columns: 1.15fr 1fr; align-items: center; gap: 72px; padding-block: 66px 80px; }
 .eyebrow { display: flex; align-items: center; gap: 9px; color: #923e2b; font-size: 10px; line-height: 1.6; font-weight: 700; text-transform: uppercase; letter-spacing: .17em; }
 .status-dot { height: 6px; width: 6px; border-radius: 50%; background: #923e2b; flex-shrink: 0; }
@@ -53,6 +55,8 @@
 h1 em, h2 em { font-weight: 400; color: #923e2b; }
 .hero-event-name { font-size: 17px; font-weight: 600; line-height: 1.6; }
 .hero-description { color: #716655; font-size: 14px; line-height: 1.85; max-width: 420px; margin-block: 17px 27px; }
+.hero-selection-note { max-width: 380px; margin-top: 24px; font-size: 11px; line-height: 1.7; color: #716655; }
+.hero-selection-note a { color: #923e2b; text-decoration: underline; text-underline-offset: 3px; }
 .primary-link { display: inline-flex; align-items: center; justify-content: center; gap: 36px; background: #923e2b; color: #fffaf2; padding: 17px 23px; border-radius: 5px; font-size: 14px; font-weight: 600; transition: background .2s, transform .2s; }
 .primary-link:hover { background: #743020; transform: translateY(-2px); }
 .curriculum-link { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #716655; width: fit-content; margin-top: 21px; }
@@ -78,13 +82,21 @@ h1 em, h2 em { font-weight: 400; color: #923e2b; }
 h2 { font-family: Georgia, serif; font-size: clamp(34px, 3.5vw, 46px); line-height: 1.15; letter-spacing: -.035em; }
 .section-heading h2, .registration-intro h2 { margin-top: 15px; }
 .section-heading > p { color: #716655; font-size: 13px; line-height: 1.8; }
-.lesson-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.lesson-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .lesson { display: flex; flex-direction: column; padding: 28px; border: 1px solid #ded6c8; border-radius: 8px; background: #fffdf880; }
 .lesson-top { display: flex; justify-content: space-between; align-items: center; color: #923e2b; margin-bottom: 29px; }
 .lesson-top span { font-family: Georgia, serif; font-size: 27px; color: #b6a891; }
 .lesson h3 { font-family: Georgia, serif; font-size: 25px; line-height: 1.2; margin-bottom: 13px; }
 .lesson > p { font-size: 13px; line-height: 1.85; color: #716655; margin-bottom: 26px; }
 .lesson-detail { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 11px; font-weight: 600; color: #923e2b; margin-top: auto; padding-top: 18px; border-top: 1px solid #e7dfd2; }
+.opportunity { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; margin-bottom: 85px; padding: 45px; background: #eee3d0; border: 1px solid #dac9ae; border-radius: 12px; }
+.opportunity h2 { margin-top: 15px; }
+.opportunity-copy > p:not(.eyebrow) { max-width: 380px; margin-block: 20px 25px; color: #625541; font-size: 14px; line-height: 1.8; }
+.opportunity-detail { align-self: center; border-left: 1px solid #cebaa0; padding-left: 45px; }
+.opportunity-number { display: flex; align-items: baseline; gap: 10px; color: #923e2b; font-size: 17px; }
+.opportunity-number strong { font-family: Georgia, serif; font-size: 88px; font-weight: 400; line-height: 1.2; letter-spacing: -.05em; }
+.opportunity-detail > p { margin-top: 18px; color: #625541; font-size: 14px; line-height: 1.8; }
+.opportunity-detail .selection-clarification { padding-top: 18px; border-top: 1px solid #cebaa0; font-size: 12px; }
 .registration-section { background: #f0e9dc; border-block: 1px solid #ded6c8; padding-block: 75px; }
 .registration-layout { display: grid; grid-template-columns: .85fr 1.15fr; gap: 85px; align-items: start; }
 .registration-intro { padding-top: 18px; }
@@ -95,15 +107,16 @@ h2 { font-family: Georgia, serif; font-size: clamp(34px, 3.5vw, 46px); line-heig
 .registration-note { margin-top: 50px; padding: 32px; border-left: 2px solid #b7976d; background: #e9deca70; }
 .registration-note span { font-size: 9px; letter-spacing: .2em; color: #716655; }
 .registration-note p { font-family: Georgia, serif; font-style: italic; font-size: 27px; line-height: 1.3; margin-top: 10px; color: #923e2b; }
-.registration-card { scroll-margin-top: 24px; --card-spacing: 28px; border-radius: 12px; box-shadow: 0 14px 45px #302b2206; }
+.registration-card { --card-spacing: 28px; border-radius: 12px; box-shadow: 0 14px 45px #302b2206; }
 .registration-card input { height: 46px; padding-inline: 12px; background: #fffefa; font-size: 16px; }
 .registration-card textarea { background: #fffefa; font-size: 16px; min-height: 95px; }
 .registration-card [data-slot=field-label], .registration-card legend { font-size: 12px; }
 .registration-card [data-slot=field-label] > [data-slot=field] { min-height: 46px; }
 .registration-card [data-slot=field-group] { gap: 23px; }
 .registration-card [data-slot=field-description] { font-size: 12px; }
+.registration-disclosure { border-left: 2px solid #b7976d; padding-left: 14px; font-size: 12px; line-height: 1.8; color: #716655; }
 .site-footer { display: flex; justify-content: space-between; align-items: center; gap: 30px; padding-block: 35px; }
-.footer-title { font-family: Georgia, serif; font-size: 22px; }
+.footer-title { max-width: 330px; font-family: Georgia, serif; font-size: 22px; line-height: 1.2; margin-bottom: 5px; }
 .site-footer p:not(.footer-title), .site-footer a { font-size: 10px; line-height: 1.9; color: #716655; }
 .site-footer span { color: #968771; }
 .site-footer a { font-weight: 600; color: #923e2b; }
@@ -113,11 +126,14 @@ h2 { font-family: Georgia, serif; font-size: clamp(34px, 3.5vw, 46px); line-heig
   .hero { gap: 35px; }
   .registration-layout { gap: 40px; grid-template-columns: .8fr 1.2fr; }
   .lesson { padding: 22px; }
+  .hero h1 { font-size: clamp(40px, 5.4vw, 74px); }
+  .opportunity { gap: 30px; padding: 30px; }
+  .opportunity-detail { padding-left: 30px; }
 }
 @media (max-width: 760px) {
+  :root { --site-header-height: 4.5rem; }
   .page-width { width: calc(100% - 40px); }
-  .site-header { padding-block: 21px; }
-  .partner-brand { width: 260px; }
+  .partner-brand { width: 230px; max-width: 60%; }
   .header-cta { font-size: 11px; gap: 5px; }
   .hero { grid-template-columns: 1fr; padding-block: 38px 45px; gap: 35px; }
   .hero h1 { font-size: clamp(48px, 9vw, 68px); }
@@ -134,6 +150,9 @@ h2 { font-family: Georgia, serif; font-size: clamp(34px, 3.5vw, 46px); line-heig
   .lesson-grid { grid-template-columns: 1fr; gap: 14px; }
   .lesson-top { margin-bottom: 15px; }
   .lesson h3 { font-size: 25px; }
+  .opportunity { grid-template-columns: 1fr; gap: 25px; margin-bottom: 45px; padding: 25px; }
+  .opportunity-detail { border-left: 0; border-top: 1px solid #cebaa0; padding: 20px 0 0; }
+  .opportunity .primary-link { gap: 15px; font-size: 12px; padding-inline: 16px; }
   .registration-section { padding-block: 45px; }
   .registration-layout { grid-template-columns: 1fr; gap: 32px; }
   .registration-intro { padding-top: 0; }

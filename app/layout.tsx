@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
+import { event } from '@/lib/event'
 import './globals.css'
 
 const inter = Inter({
@@ -11,10 +12,9 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'The Gourmet Brunch and Commercial Snack Blueprint | Register',
+  title: `${event.name} | ${event.edition} | ${event.cohort}`,
   description:
-    "Register for The Gourmet Brunch and Commercial Snack Blueprint by Aivot Treats x Virusia Academy x Damron Confections. Friday 31st July, 7PM WAT on Google Meet.",
-  generator: 'v0.app',
+    `Join ${event.name}, ${event.edition}, ${event.cohort}. Product experience, business training, founder stories, and a venture showcase. ${event.date}, ${event.time} on ${event.venue}.`,
   icons: {
     icon: [
       {
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'light',
-  themeColor: '#a8281f',
+  themeColor: '#923e2b',
 }
 
 export default function RootLayout({
