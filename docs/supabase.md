@@ -1,7 +1,19 @@
 ﻿# Supabase setup
 
-The integration is ready for a new project. No live project has been connected
-or data migrated yet.
+The local application is connected to Supabase. Live checks passed on
+2 October 2026 for organiser sign-in, programme registration, pitch intake,
+PDF upload, reviews, private downloads, and sign-out. Temporary test records
+and files were removed, and the original intake setting was restored.
+
+Organiser access has been created for `virusiatechindustries@gmail.com`.
+The initial password is stored as `EEA_ADMIN_INITIAL_PASSWORD` in the ignored
+`.env.local` file. Run `npm run dev` and visit `http://localhost:3000/admin`
+to sign in. The local server is stopped after verification.
+
+The steps below describe setup for a new project or another environment. The
+initial SQL migration is already applied to the connected project; do not run
+it again there. Production deployment still needs the Supabase environment
+variables configured separately. No legacy records have been imported.
 
 ## 1. Create the project and database
 
