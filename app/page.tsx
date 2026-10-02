@@ -1,8 +1,9 @@
 ﻿import { EventHero } from '@/components/event-hero'
 import { RegistrationForm } from '@/components/registration-form'
 import { EventFooter } from '@/components/event-footer'
-import { ArrowUpRight, ChefHat, Mic2, TrendingUp, Users, Check } from 'lucide-react'
+import { ChefHat, Mic2, TrendingUp, Users, Check } from 'lucide-react'
 import { selectionNote } from '@/lib/event'
+import { PitchInvitation } from '@/components/pitch-invitation'
 
 const lessons = [
   {
@@ -22,7 +23,7 @@ const lessons = [
   },
   {
     number: '04', icon: Mic2, title: 'Venture pitch & showcase',
-    text: 'Explore the opportunity to present your food or beverage business idea and showcase what you’re building.',
+    text: 'Explore the opportunity to present a compelling business idea or an operating venture. Pitches are welcome from all industries, with a clear path to cash flow.',
     detail: 'Put your idea forward',
   },
 ]
@@ -53,13 +54,13 @@ export default function Page() {
           <div className="opportunity-copy">
             <p className="eyebrow">The opportunity</p>
             <h2 id="opportunity-title">Your idea could<br /><em>be the next step.</em></h2>
-            <p>Have a food or beverage business idea? The programme includes an opportunity to put it forward for consideration.</p>
-            <a href="#register" className="primary-link">Start with the programme <ArrowUpRight size={19} aria-hidden /></a>
+            <p>Have a compelling business idea or a venture already making sales? Pitch from any industry. Show us how your business can generate revenue, sustain cash flow, and grow.</p>
+            <PitchInvitation />
           </div>
           <div className="opportunity-detail">
             <span className="opportunity-number">Up to <strong>10</strong> ventures</span>
             <p>{selectionNote}</p>
-            <p className="selection-clarification">Programme registration is separate from venture selection and does not guarantee funding or business support.</p>
+            <p className="selection-clarification">The learning programme focuses on F&amp;B. The pitch opportunity welcomes all sectors, from early-stage ideas to operating businesses. Programme registration is not required to pitch.</p>
           </div>
         </section>
         <section className="registration-section" aria-labelledby="registration-heading">
