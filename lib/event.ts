@@ -3,8 +3,7 @@
   edition: 'F&B Edition',
   cohort: 'Cohort 01',
   tagline: 'Learn. Build. Pitch. Get backed.',
-  // The supplied flyer does not specify a year; don't infer one or a weekday.
-  date: '10–11 October',
+  date: '10–11 October 2026',
   time: '7PM WAT',
   venue: 'Google Meet',
   facilitator: 'Tovia Osonaike',

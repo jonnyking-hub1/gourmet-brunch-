@@ -15,6 +15,42 @@ Intended palette: deep rust `#923E2B`, warm charcoal `#302B22`, and cream `#FAF7
 Use the transparent logo on a light surface and preserve its aspect ratio.
 The generated files are saved as new assets; existing organiser logos are preserved.
 
+## Website usage
+
+The pitch page and organiser sign-in headers use the transparent logo through
+`PortalHeader` with `showLogo`. The organiser dashboard uses the same asset and
+responsive frame, which crops only the transparent outer margins. Dashboard
+header buttons wrap on narrow screens to leave enough room for the logo.
+
+Browser tabs use the isolated A and growth arrow, on cream for contrast in both
+light and dark browser themes. The favicon master was derived from the approved
+logo with the built-in imagegen tool, then exported at standard browser sizes:
+
+- [Favicon master](../public/images/brand/eea-icon-master-v1.png)
+- [32px browser icon](../public/images/brand/eea-icon-32-v1.png)
+- [192px browser icon](../public/images/brand/eea-icon-192-v1.png)
+- [180px Apple touch icon](../public/images/brand/eea-apple-icon-v1.png)
+- [Multi-size favicon](../app/favicon.ico): 16, 32, 48, and 64px RGBA PNG entries.
+
+ICO entries must include an alpha channel even with the opaque cream background:
+Next.js's ICO decoder rejects RGB-only PNG entries.
+
+`app/layout.tsx` references the new PNG icons. Next.js discovers `app/favicon.ico`
+automatically for browsers requesting the conventional favicon URL.
+
+## Favicon prompt
+
+Created with the built-in imagegen tool, using the cream-background logo as the edit target:
+
+```text
+Create a square browser favicon master from only the approved logo's capital A
+and its integrated upward-right growth arrow. Remove the two E letters and all
+supporting text. Preserve its thick serif legs, triangular counter, diagonal cut,
+and rising arrow. Center it with about 10 percent clear margin. Use solid deep
+rust #923E2B on flat opaque warm cream #FAF7EF. Keep it readable at 16 and 32px.
+No gradients, shadows, texture, glow, borders, mockups, captions, or extra symbols.
+```
+
 ## Generation prompt
 
 ```text
@@ -42,4 +78,3 @@ Use case: background-extraction / logo-brand presentation export.
 Input image 1 is the finished EEA logo and is the edit target. It is an RGBA PNG with real transparency; some previews incorrectly show the RGB of fully transparent pixels as a dark orange haze.
 Make one clean cream-background version of this exact logo. Preserve the exact EEA letterforms, upward/rightward stroke integrated in the A, all letter spacing, the composition, and the two name lines exactly. Text is "EEA", "EMERGING ENTREPRENEURS", "ACCELERATOR". Replace only transparent background areas with a uniform flat warm cream #FAF7EF, including all letter counters and surrounding clear space. Opaque EEA letters should remain solid deep rust #923E2B, and the full-name lettering should remain warm charcoal #302B22. The result must look like crisp flat graphic design on clean cream, without black, orange haze, glow, gradients, shadows, texture, vignette, or 3D effects. Do not change the typography or design. Export as a high-resolution opaque PNG.
 ```
-

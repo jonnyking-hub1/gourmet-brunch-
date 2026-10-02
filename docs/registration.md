@@ -4,8 +4,8 @@ The form registers attendees for EEA, F&B Edition, Cohort 01. It is separate
 from the all-sector business pitch application. Funding and business support
 remain subject to selection and the final investment structure.
 
-Programme details live in `lib/event.ts`. The supplied flyer does not specify
-a year and has an ambiguous weekday, so site copy uses `10–11 October`.
+Programme details live in `lib/event.ts`. The organiser confirmed the event year
+as 2026, so site copy uses `10–11 October 2026`, at 7PM WAT on Google Meet.
 
 Registrations now persist in the Supabase `eea_registrations` table with a UUID
 and server-generated timestamp. Shared browser/API validation is in

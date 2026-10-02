@@ -18,19 +18,17 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
+        url: '/images/brand/eea-icon-32-v1.png',
+        type: 'image/png',
+        sizes: '32x32',
       },
       {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/images/brand/eea-icon-192-v1.png',
+        type: 'image/png',
+        sizes: '192x192',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: [{ url: '/images/brand/eea-apple-icon-v1.png', type: 'image/png', sizes: '180x180' }],
   },
 }
 

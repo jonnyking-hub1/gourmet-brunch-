@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function PitchPage() {
   return (
     <>
-      <PortalHeader label="Venture submissions" />
+      <PortalHeader label="Venture submissions" showLogo />
       <main className="page-width pitch-layout">
         <section className="pitch-intro" aria-labelledby="pitch-heading">
           <p className="eyebrow">All sectors. Real business potential.</p>

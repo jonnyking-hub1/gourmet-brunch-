@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Download, RefreshCw, LogOut, Users, Files, CircleCheck, Search } from 'lucide-react'
 import { pitchFields, reviewStatuses, type PitchRecord, type ReviewStatus } from '@/lib/pitch'
 import type { RegistrationRecord } from '@/lib/server/store'
@@ -100,7 +101,22 @@ export function AdminDashboard() {
 
   return (
     <main className="admin-shell page-width">
-      <header className="admin-header"><Link href="/" className="portal-brand">EEA<span>Organiser dashboard</span></Link><div><button className="outline-action" disabled={loading} onClick={() => void refresh()}><RefreshCw size={15} aria-hidden /> Refresh</button><button className="outline-action" onClick={() => void logout()}><LogOut size={15} aria-hidden /> Sign out</button></div></header>
+      <header className="admin-header" aria-label="Organiser dashboard">
+        <Link href="/" className="portal-logo" aria-label="Emerging Entrepreneurs Accelerator — home">
+          <Image
+            src="/images/brand/eea-logo-transparent-v1.png"
+            alt="EEA — Emerging Entrepreneurs Accelerator"
+            width={1536}
+            height={1024}
+            sizes="(max-width: 760px) 144px, 200px"
+            loading="eager"
+          />
+        </Link>
+        <div>
+          <button className="outline-action" disabled={loading} onClick={() => void refresh()}><RefreshCw size={15} aria-hidden /> Refresh</button>
+          <button className="outline-action" onClick={() => void logout()}><LogOut size={15} aria-hidden /> Sign out</button>
+        </div>
+      </header>
       <div className="admin-heading"><div><p className="eyebrow">The people. The ideas. The next step.</p><h1>Build what comes <em>next.</em></h1></div><Link href="/pitch" className="text-link">View public pitch page ↗</Link></div>
       {error && <p className="form-error" role="alert">{error} <button className="text-link" type="button" onClick={() => void refresh()}>Try again</button></p>}
       {notice && <p className="form-success" role="status">{notice}</p>}

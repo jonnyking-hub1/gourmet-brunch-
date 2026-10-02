@@ -7,5 +7,5 @@ import { PortalHeader } from '@/components/portal-header'
 export default async function AdminLoginPage() {
   await connection()
   if (await isAdmin()) redirect('/admin')
-  return <><PortalHeader label="Organiser access" /><main className="login-layout"><AdminLogin configured={adminConfigured()} /></main></>
+  return <><PortalHeader label="Organiser access" showLogo /><main className="login-layout"><AdminLogin configured={adminConfigured()} /></main></>
 }

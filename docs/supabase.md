@@ -77,6 +77,9 @@ policies allowing users to edit this table.
 
 ## 4. Verify and deploy
 
+Vercel is the selected hosting provider. Follow [the Vercel deployment guide](vercel.md)
+for project settings, environment variables, and the live verification steps.
+
 Restart the app after changing environment variables. Set the three Supabase
 connection variables in deployment settings too; `SUPABASE_ADMIN_EMAIL` and
 `EEA_ADMIN_INITIAL_PASSWORD` are local setup values, not runtime requirements.
