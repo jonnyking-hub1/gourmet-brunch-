@@ -18,17 +18,17 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/images/brand/eea-icon-32-v1.png',
+        url: '/images/brand/eea-icon-32-v2.png',
         type: 'image/png',
         sizes: '32x32',
       },
       {
-        url: '/images/brand/eea-icon-192-v1.png',
+        url: '/images/brand/eea-icon-192-v2.png',
         type: 'image/png',
         sizes: '192x192',
       },
     ],
-    apple: [{ url: '/images/brand/eea-apple-icon-v1.png', type: 'image/png', sizes: '180x180' }],
+    apple: [{ url: '/images/brand/eea-apple-icon-v2.png', type: 'image/png', sizes: '180x180' }],
   },
 }
 

@@ -1,4 +1,4 @@
-# EEA logo — version 1
+# EEA logo and icons
 
 Created with the built-in image generation tool for Emerging Entrepreneurs Accelerator.
 
@@ -22,14 +22,15 @@ The pitch page and organiser sign-in headers use the transparent logo through
 responsive frame, which crops only the transparent outer margins. Dashboard
 header buttons wrap on narrow screens to leave enough room for the logo.
 
-Browser tabs use the isolated A and growth arrow, on cream for contrast in both
-light and dark browser themes. The favicon master was derived from the approved
-logo with the built-in imagegen tool, then exported at standard browser sizes:
+Browser tabs and phone icons use all three letters **EEA**, including the A's
+growth arrow, on cream for contrast in both light and dark browser themes. The
+version 2 favicon master was derived from the approved full logo with the
+built-in imagegen tool, then exported at standard browser sizes:
 
-- [Favicon master](../public/images/brand/eea-icon-master-v1.png)
-- [32px browser icon](../public/images/brand/eea-icon-32-v1.png)
-- [192px browser icon](../public/images/brand/eea-icon-192-v1.png)
-- [180px Apple touch icon](../public/images/brand/eea-apple-icon-v1.png)
+- [Square EEA logo / favicon master](../public/images/brand/eea-icon-master-v2.png)
+- [32px browser icon](../public/images/brand/eea-icon-32-v2.png)
+- [192px browser icon](../public/images/brand/eea-icon-192-v2.png)
+- [180px Apple touch icon](../public/images/brand/eea-apple-icon-v2.png)
 - [Multi-size favicon](../app/favicon.ico): 16, 32, 48, and 64px RGBA PNG entries.
 
 ICO entries must include an alpha channel even with the opaque cream background:
@@ -37,18 +38,15 @@ Next.js's ICO decoder rejects RGB-only PNG entries.
 
 `app/layout.tsx` references the new PNG icons. Next.js discovers `app/favicon.ico`
 automatically for browsers requesting the conventional favicon URL.
+Versioned PNG URLs refresh the previous browser icon. The retired v1 A-only
+assets remain as historical files and are not referenced by the website.
 
-## Favicon prompt
+## Favicon prompt — version 2
 
 Created with the built-in imagegen tool, using the cream-background logo as the edit target:
 
 ```text
-Create a square browser favicon master from only the approved logo's capital A
-and its integrated upward-right growth arrow. Remove the two E letters and all
-supporting text. Preserve its thick serif legs, triangular counter, diagonal cut,
-and rising arrow. Center it with about 10 percent clear margin. Use solid deep
-rust #923E2B on flat opaque warm cream #FAF7EF. Keep it readable at 16 and 32px.
-No gradients, shadows, texture, glow, borders, mockups, captions, or extra symbols.
+Use case: logo-brand. Edit target: the attached approved EEA cream-background logo. Create its square favicon/app-icon variant, containing EXACTLY all three capital letters "EEA" in one horizontal row. Retain the existing identity: two bold serif E letters and the serif A with its integrated upward-right growth arrow. Each letter must be distinct and immediately legible. Use slightly condensed, thick, robust letterforms adapted for tiny 16px and 32px browser icons, with open counters and clear spacing between E, E, and A. The lettering group should occupy about 90 percent of the square width and 50 percent of the height, optically centered; do not shrink the letters excessively. Use solid deep rust #923E2B lettering on a perfectly flat opaque warm cream #FAF7EF square. Remove the long supporting name and all other text. Keep exactly EEA, never abbreviate to A or EA. Preserve the arrow within the A. No gradients, texture, shadows, glow, vignette, border, rounded container, extra symbols, captions, or mockup. Output one finished square bitmap icon master.
 ```
 
 ## Generation prompt
